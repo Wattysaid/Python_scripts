@@ -1,0 +1,43 @@
+# Takes a document and extracts the chapters flagged by <h2> as seperate files.
+
+from docx import Document
+import os
+
+# Prompt the user for the document path and destination path
+doc_path = input("Please enter the path to the original document: ")
+destination_path = input("Please enter the path for saving extracted chapters: ")
+
+doc = Document(doc_path)
+
+def save_chapter(chapter_title, chapter_content, destination_path):
+    # Ensure the destination path exists
+    if not os.path.exists(destination_path):
+        os.makedirs(destination_path)
+    # Create a new document for the chapter
+    chapter_doc = Document()
+    chapter_doc.add_heading(chapter_title, level=1)
+    for paragraph in chapter_content:
+        chapter_doc.add_paragraph(paragraph)
+    # Generate filename by removing problematic characters
+    filename = f"{chapter_title}.docx".replace(":", "").replace("?", "").replace("/", "").replace("\\", "")
+    # Save the document
+    chapter_doc.save(os.path.join(destination_path, filename))
+
+current_chapter_content = []
+current_chapter_title = ""
+
+for paragraph in doc.paragraphs:
+    if paragraph.style.name.startswith('Heading 1'):  # Assuming chapter titles are 'Heading 1'
+        # Save the previous chapter if it exists
+        if current_chapter_content:
+            save_chapter(current_chapter_title, current_chapter_content, destination_path)
+            current_chapter_content = []  # Reset for the next chapter
+        current_chapter_title = paragraph.text
+    else:
+        current_chapter_content.append(paragraph.text)
+
+# Don't forget to save the last chapter
+if current_chapter_content:
+    save_chapter(current_chapter_title, current_chapter_content, destination_path)
+
+print("All chapters have been extracted and saved as individual docx files.")
