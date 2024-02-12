@@ -20,3 +20,12 @@ The repository is structured to include a diverse set of Python scripts, each ca
 <h2>This repository is intended for:</h2>
 
 Anyone interested in learning about automating tasks with Python.
+
+ <h2>Table of Contents</h2>
+        <ul>
+            <li><a href="https://github.com/Wattysaid/Python_scripts/blob/main/Bulk_file_copy.py" target="_blank">BulkFileCopy</a></li>
+            <li><a href="https://github.com/Wattysaid/Python_scripts/blob/main/Chapter%20to%20new%20docx)" target="_blank">Chapter_to_doc</a></li>
+            <li><a href="https://github.com/Wattysaid/Python_scripts/blob/main/dependancy_checker.py" target="_blank">Dependancy_checker</a></li>
+            <li><a href="https://github.com/Wattysaid/Python_scripts/blob/main/duplicated_checker.py" target="_blank">Duplicate_checker</a></li>
+        </ul>
+
