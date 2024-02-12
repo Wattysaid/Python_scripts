@@ -5,7 +5,9 @@
 _Version: R1.00_
 
 ## 🎯 Repository Purpose:
-The purpose of this repository is to serve as a comprehensive collection of Python scripts designed for automating a range of tasks for my own personal usage. These scripts aim to enhance productivity 🚀, reduce manual effort 🛠️, and streamline processes across various domains such as file management, data processing, system administration, and web automation. These all served their purpose and have avoided a lot of personal hours.
+The purpose of this repository is to serve as a comprehensive collection of Python scripts designed for automating a range of tasks for my own personal usage. 
+
+These scripts aim to enhance productivity 🚀, reduce manual effort 🛠️, and streamline processes across various domains such as file management, data processing, system administration, and random items. These all served their purpose and have avoided a lot of personal hours.
 
 I am not a coder and these are by no means usable within a business environment. Use at your own risk.
 
