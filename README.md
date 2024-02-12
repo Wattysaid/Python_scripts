@@ -19,7 +19,7 @@ The repository is structured to include a diverse set of Python scripts, each ca
 
 <h2>This repository is intended for:</h2>
 
-Anyone interested in learning about automating tasks with Python.
+Anyone whos dabbling along in an attempt to learn Python for fun.
 
  <h2>Table of Contents</h2>
         <ul>
