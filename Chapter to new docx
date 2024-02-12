@@ -49,45 +49,66 @@ check_and_install_packages(required_packages)
 from docx import Document
 import os
 
-# Prompt the user for the document path and destination path
-doc_path = input("Please enter the path to the original document: ")
-destination_path = input("Please enter the path for saving extracted chapters: ")
+def get_document_path():
+    return input("Please enter the path to the original document: ")
 
-# Ask the user to select the heading level for chapters
-heading_level = input("Please select the chapter heading level (for <h1> type 1, for <h2> type 2, etc.): ")
-heading_style = f"Heading {heading_level}"  # Constructs the style name based on user input
+def get_destination_path():
+    return input("Please enter the path for saving extracted chapters: ")
 
-doc = Document(doc_path)
+def get_heading_level():
+    return input("Please select the chapter heading level (for <h1> type 1, for <h2> type 2, etc.): ")
+
+def validate_heading_selection(doc, heading_style):
+    # Count the number of headings matching the selected style
+    count = sum(1 for paragraph in doc.paragraphs if paragraph.style.name == heading_style)
+    print(f"Number of headers found with the style '{heading_style}': {count}")
+    if count == 0:
+        print("Warning: No headers found with the selected style. Please reconsider your selection.")
+    return count
+
+def user_confirmation():
+    return input("Would you like to proceed with the extraction? Type 'yes' to continue or 'no' to select a different heading level: ").lower()
 
 def save_chapter(chapter_title, chapter_content, destination_path):
-    # Ensure the destination path exists
     if not os.path.exists(destination_path):
         os.makedirs(destination_path)
-    # Create a new document for the chapter
     chapter_doc = Document()
     chapter_doc.add_heading(chapter_title, level=1)
     for paragraph in chapter_content:
         chapter_doc.add_paragraph(paragraph)
-    # Generate filename by removing problematic characters
     filename = f"{chapter_title}.docx".replace(":", "").replace("?", "").replace("/", "").replace("\\", "")
-    # Save the document
     chapter_doc.save(os.path.join(destination_path, filename))
 
-current_chapter_content = []
-current_chapter_title = ""
+def extract_chapters(doc, heading_style, destination_path):
+    current_chapter_content = []
+    current_chapter_title = ""
+    for paragraph in doc.paragraphs:
+        if paragraph.style.name == heading_style:
+            if current_chapter_content:
+                save_chapter(current_chapter_title, current_chapter_content, destination_path)
+                current_chapter_content = []
+            current_chapter_title = paragraph.text
+        else:
+            current_chapter_content.append(paragraph.text)
+    if current_chapter_content:
+        save_chapter(current_chapter_title, current_chapter_content, destination_path)
+    print("All chapters have been extracted and saved as individual docx files.")
 
-for paragraph in doc.paragraphs:
-    if paragraph.style.name == heading_style:  # Use the user-selected heading level for chapter titles
-        # Save the previous chapter if it exists
-        if current_chapter_content:
-            save_chapter(current_chapter_title, current_chapter_content, destination_path)
-            current_chapter_content = []  # Reset for the next chapter
-        current_chapter_title = paragraph.text
+# Main process
+doc_path = get_document_path()
+destination_path = get_destination_path()
+doc = Document(doc_path)
+
+while True:
+    heading_level = get_heading_level()
+    heading_style = f"Heading {heading_level}"
+    if validate_heading_selection(doc, heading_style) > 0:
+        if user_confirmation() == "yes":
+            extract_chapters(doc, heading_style, destination_path)
+            break
     else:
-        current_chapter_content.append(paragraph.text)
-
-# Don't forget to save the last chapter
-if current_chapter_content:
-    save_chapter(current_chapter_title, current_chapter_content, destination_path)
-
-print("All chapters have been extracted and saved as individual docx files.")
+        if user_confirmation() == "no":
+            continue
+        else:
+            extract_chapters(doc, heading_style, destination_path)
+            break
