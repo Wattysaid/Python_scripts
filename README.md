@@ -29,4 +29,5 @@ Anyone who's dabbling along in an attempt to learn Python for fun 🤓.
     <li><a href="https://github.com/Wattysaid/Python_scripts/blob/main/Chapter_to_new_docx.py" target="_blank">Chapter_to_doc</a></li>
     <li><a href="https://github.com/Wattysaid/Python_scripts/blob/main/dependancy_checker.py" target="_blank">Dependency_checker</a></li>
     <li><a href="https://github.com/Wattysaid/Python_scripts/blob/main/duplicated_checker.py" target="_blank">Duplicate_checker</a></li>
+    <li><a href="https://github.com/Wattysaid/Python_scripts/blob/main/Bulk_file_copy.py" target="_blank">Bulk Copy Files</a></li>
 </ul>
