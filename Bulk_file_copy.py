@@ -1,60 +1,109 @@
+import subprocess
+import sys
+
+def install(package):
+    """Install the specified Python package using pip."""
+    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
+def check_and_install_packages(required_packages):
+    missing_packages = []
+    installed_packages = []  # Keep track of newly installed packages
+
+    for package in required_packages:
+        try:
+            __import__(package)
+            print(f"{package} is already installed.")
+        except ImportError:
+            missing_packages.append(package)
+
+    if missing_packages:
+        missing_packages_str = ", ".join(missing_packages)
+        consent = input(f"Would you like to install the missing packages ({missing_packages_str})? [yes/no]: ")
+        if consent.lower() == 'yes':
+            for package in missing_packages:
+                print(f"Installing {package}...")
+                install(package)
+                installed_packages.append(package)  # Add to the list of installed packages
+        else:
+            print("Missing packages are required to run the application. Exiting.")
+            sys.exit(1)
+    else:
+        print("All required packages are already installed.")
+
+    # Summarising Installed Packages
+    if installed_packages:
+        print(f"Installed packages: {', '.join(installed_packages)}")
+    else:
+        print("No new packages were installed.")
+
+    # Wait for User Input
+    input("Press Enter to continue with the script...")
+
+# List of required packages
+required_packages = ["os", "shutil", "tqdm", "time"]  # Note: corrected package name to lowercase for consistency
+
+# Check and install required packages
+check_and_install_packages(required_packages)
+
+
 import os
 import shutil
-import csv
-from datetime import datetime
+from tqdm import tqdm
+import time
 
-def find_and_copy_files(src_directory, target_directory, file_extensions, csv_file_name):
-    if not os.path.exists(target_directory):
-        os.makedirs(target_directory)
+def scan_folder(folder):
+    file_types = {}
+    for root, dirs, files in os.walk(folder):
+        for file in files:
+            extension = file.split('.')[-1]
+            if extension not in file_types:
+                file_types[extension] = []
+            file_types[extension].append(os.path.join(root, file))
+    return file_types
 
-    total_files_copied = 0
+def summarize_files(file_types):
+    summary = []
+    for extension, files in file_types.items():
+        summary.append(f"{len(files)} {extension.upper()} files")
+    return summary
 
-    with open(csv_file_name, mode='w', newline='', encoding='utf-8') as file:
-        csv_writer = csv.writer(file)
-        csv_writer.writerow(['Title', 'File Type', 'Size (bytes)', 'Created On'])
+def move_files(selected_types, file_types, destination):
+    total_files = sum(len(file_types[ext]) for ext in selected_types)
+    log_file_path = os.path.join(destination, "moved_files_log.txt")
+    with open(log_file_path, "w") as log_file, tqdm(total=total_files) as pbar:
+        start_time = time.time()
+        for ext in selected_types:
+            for file_path in file_types[ext]:
+                shutil.move(file_path, destination)
+                log_file.write(file_path + "\n")
+                pbar.update(1)
+        end_time = time.time()
+    return total_files, end_time - start_time
 
-        # Walk through the directory and subdirectories
-        for root, dirs, files in os.walk(src_directory):
-            for file in files:
-                if file.endswith(file_extensions):
-                    src_file_path = os.path.join(root, file)  # Full path of the source file
-                    dest_file_path = os.path.join(target_directory, os.path.relpath(src_file_path, src_directory))  # Constructing destination path
+def main():
+    folder = input("Enter the folder path to scan: ")
+    file_types = scan_folder(folder)
+    summary = summarize_files(file_types)
+    print("Files found:")
+    for i, item in enumerate(summary, 1):
+        print(f"{i}. {item}")
 
-                    try:
-                        os.makedirs(os.path.dirname(dest_file_path), exist_ok=True)  # Create subdirectories in target if they don't exist
-                        shutil.copy(src_file_path, dest_file_path)
-                        total_files_copied += 1
+    selections = input("Select the numbers to move (comma-separated): ")
+    selected_indices = [int(index) for index in selections.split(',')]
+    selected_types = [list(file_types.keys())[i-1] for i in selected_indices]
 
-                        # Getting file details
-                        file_size = os.path.getsize(src_file_path)
-                        file_type = os.path.splitext(file)[1]
-                        creation_time = datetime.fromtimestamp(os.path.getctime(src_file_path)).strftime('%Y-%m-%d %H:%M:%S')
+    destination = input("Enter the destination folder path: ")
+    print(f"Upon approval, I will proceed to move {', '.join([summary[i-1] for i in selected_indices])} to {destination}.")
+    confirm = input("Do you wish to proceed? (yes/no): ")
 
-                        # Writing details to CSV
-                        csv_writer.writerow([file, file_type, file_size, creation_time])
-                    except Exception as e:
-                        print(f"Error copying file {src_file_path}: {e}")
+    if confirm.lower() == 'yes':
+        total_files, duration = move_files(selected_types, file_types, destination)
+        print(f"Moved {total_files} files in {duration:.2f} seconds. Transfer speed: {total_files/duration:.2f} files/sec")
+        print(f"A log of moved files has been saved to {destination}")
+    else:
+        print("Operation cancelled.")
 
-    return total_files_copied
+    input("Press Enter to exit...")  # This line keeps the window open until the user presses Enter.
 
-# File extensions to look for
-extensions = ('.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx')
-
-# Prompt user for source and target directories
-source_directory = input("Enter the source directory path: ")
-target_directory = input("Enter the target directory path for downloading the files: ")
-
-csv_save_location = input("Enter the directory path to save the CSV file (Press Enter to use the Downloads folder): ")
-if not csv_save_location:
-    csv_save_location = os.path.join(os.path.expanduser("~"), "Downloads")
-csv_file_name = os.path.join(csv_save_location, "files_copied.csv")
-
-# Core script
-total_files_copied = find_and_copy_files(source_directory, target_directory, extensions, csv_file_name)
-
-# Summary and closing
-print(f"\nTotal files copied: {total_files_copied}")
-print(f"CSV report generated at: {csv_file_name}")
-
-# Wait for user to press Enter before closing
-input("\nPress Enter to close the application...")
+if __name__ == "__main__":
+    main()
