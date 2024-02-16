@@ -1,3 +1,4 @@
+# Check if the required packages are installed
 import subprocess
 import sys
 
