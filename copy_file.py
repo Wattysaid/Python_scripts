@@ -41,7 +41,7 @@ def check_and_install_packages(required_packages):
 
 # List of required packages
 # Note: corrected package name to lowercase for consistency
-    required_packages = ["os", "shutil", "pathlib", "tqdm"] 
+required_packages = ["os", "shutil", "pathlib", "tqdm"] 
 
 # Check and install required packages
 check_and_install_packages(required_packages)
@@ -69,12 +69,33 @@ def confirm(prompt):
         elif response in ['n', 'no']:
             return False
 
-def copy_with_progress(src, dst):
-    # Get the size of the file
+def choose_chunk_size(file_size):
+    print("\nChoose a chunk size for copying:")
+    print("1: 512 KB\n2: 1 MB\n3: 2 MB\n4: 4 MB\n5: 8 MB")
+    if file_size > 500 * (1024 ** 2):  # Suggest larger chunk size for files larger than 500MB
+        print("Suggestion: Choose a larger chunk size (4 or 5) for faster copying of large files.")
+    else:
+        print("Suggestion: Choose a smaller chunk size (1 or 2) for smaller files or if unsure about hardware capabilities.")
+
+    choice = input("Enter your choice (1-5): ")
+    chunk_sizes = {
+        '1': 512 * 1024,
+        '2': 1024 * 1024,
+        '3': 2 * 1024 * 1024,
+        '4': 4 * 1024 * 1024,
+        '5': 8 * 1024 * 1024
+    }
+    return chunk_sizes.get(choice, 1024 * 1024)  # Default to 1MB if invalid choice
+
+def copy_with_progress(src, dst, chunk_size):
     file_size = os.path.getsize(src)
-    with tqdm(total=file_size, unit='B', unit_scale=True, desc="Copying") as pbar:
-        with open(src, 'rb') as fsrc, open(dst, 'wb') as fdst:
-            shutil.copyfileobj(fsrc, fdst, 1024*1024, callback=lambda x: pbar.update(len(x)))
+    with open(src, 'rb') as fsrc, open(dst, 'wb') as fdst, tqdm(total=file_size, unit='B', unit_scale=True, desc="Copying") as pbar:
+        while True:
+            buffer = fsrc.read(chunk_size)
+            if not buffer:
+                break
+            fdst.write(buffer)
+            pbar.update(len(buffer))
 
 def main():
     file_path = input("Please enter the path of the file you wish to copy: ")
@@ -92,13 +113,14 @@ def main():
 
     if confirm("Do you want to proceed with the copy?"):
         destination_path = Path(destination_folder) / file_details['name']
-        copy_with_progress(file_path, destination_path)
+        chunk_size = choose_chunk_size(file_details['size_bytes'])
+        copy_with_progress(file_path, destination_path, chunk_size)
         print("File copied successfully!")
         print(f"Transfer Summary:\n- Source: {file_path}\n- Destination: {destination_path}\n- File Size: {file_details['size_mb']:.2f} MB")
     else:
         print("File copy cancelled.")
 
-    input("Press any key to exit...")
+    input("Transfer complete! Press any key to exit...")
 
 if __name__ == "__main__":
     main()
