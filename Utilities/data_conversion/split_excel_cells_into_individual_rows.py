@@ -103,5 +103,8 @@ def get_user_input():
     
     split_multiline_cells(excel_file_path, output_folder_path, has_header)
 
-get_user_input()
+def main():
+    get_user_input()
 
+if __name__ == "__main__":
+    main()

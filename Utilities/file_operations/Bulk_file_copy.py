@@ -1,3 +1,4 @@
+# Check if the required packages are installed
 import subprocess
 import sys
 
@@ -40,10 +41,11 @@ def check_and_install_packages(required_packages):
     input("Press Enter to continue with the script...")
 
 # List of required packages
-required_packages = ["shutil", "tqdm", "time", "os"]  # Note: corrected package name to lowercase for consistency
+required_packages = ["os", "shutil", "tqdm", "time"]  # Note: corrected package name to lowercase for consistency
 
 # Check and install required packages
 check_and_install_packages(required_packages)
+
 
 import os
 import shutil
@@ -80,27 +82,56 @@ def move_files(selected_types, file_types, destination):
     return total_files, end_time - start_time
 
 def main():
-    folder = input("Enter the folder path to scan: ")
-    file_types = scan_folder(folder)
+    print("Bulk File Copy/Move Utility")
+    print("-" * 30)
+    
+    # Get source directory
+    while True:
+        source = input("\nEnter the source directory path: ").strip()
+        if os.path.isdir(source):
+            break
+        print("Error: Directory not found. Please try again.")
+    
+    # Scan files
+    print(f"\nScanning files in: {source}")
+    file_types = scan_files(source)
+    
+    if not file_types:
+        print("No files found in the specified directory.")
+        return
+    
+    # Display summary
+    print("\nFiles found:")
     summary = summarize_files(file_types)
-    print("Files found:")
-    for i, item in enumerate(summary, 1):
-        print(f"{i}. {item}")
-
-    selections = input("Select the numbers to move (comma-separated): ")
-    selected_indices = [int(index) for index in selections.split(',')]
-    selected_types = [list(file_types.keys())[i-1] for i in selected_indices]
-
-    destination = input("Enter the destination folder path: ")
-    print(f"Upon approval, I will proceed to move {', '.join([summary[i-1] for i in selected_indices])} to {destination}.")
-    confirm = input("Do you wish to proceed? (yes/no): ")
-
-    if confirm.lower() == 'yes':
-        total_files, duration = move_files(selected_types, file_types, destination)
-        print(f"Moved {total_files} files in {duration:.2f} seconds. Transfer speed: {total_files/duration:.2f} files/sec")
-        print(f"A log of moved files has been saved to {destination}")
+    for item in summary:
+        print(f"  - {item}")
+    
+    # Select file types to move
+    print(f"\nAvailable file types: {', '.join(file_types.keys())}")
+    selected = input("Enter file types to move (comma-separated, or 'all'): ").strip()
+    
+    if selected.lower() == 'all':
+        selected_types = list(file_types.keys())
     else:
-        print("Operation cancelled.")
+        selected_types = [ext.strip() for ext in selected.split(',') if ext.strip() in file_types]
+    
+    if not selected_types:
+        print("No valid file types selected.")
+        return
+    
+    # Get destination
+    while True:
+        destination = input("\nEnter destination directory: ").strip()
+        if os.path.isdir(destination):
+            break
+        print("Error: Destination directory not found.")
+    
+    # Confirm and move
+    total_to_move = sum(len(file_types[ext]) for ext in selected_types)
+    if input(f"Move {total_to_move} files? (y/n): ").lower() == 'y':
+        total_moved, duration = move_files(selected_types, file_types, destination)
+        print(f"\n✓ Moved {total_moved} files in {duration:.2f} seconds")
+        print(f"Log file created: {os.path.join(destination, 'moved_files_log.txt')}")
 
 if __name__ == "__main__":
     main()

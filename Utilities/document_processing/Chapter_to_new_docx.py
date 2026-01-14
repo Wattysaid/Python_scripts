@@ -94,21 +94,25 @@ def extract_chapters(doc, heading_style, destination_path):
         save_chapter(current_chapter_title, current_chapter_content, destination_path)
     print("All chapters have been extracted and saved as individual docx files.")
 
-# Main process
-doc_path = get_document_path()
-destination_path = get_destination_path()
-doc = Document(doc_path)
+def main():
+    # Main process
+    doc_path = get_document_path()
+    destination_path = get_destination_path()
+    doc = Document(doc_path)
 
-while True:
-    heading_level = get_heading_level()
-    heading_style = f"Heading {heading_level}"
-    if validate_heading_selection(doc, heading_style) > 0:
-        if user_confirmation() == "yes":
-            extract_chapters(doc, heading_style, destination_path)
-            break
-    else:
-        if user_confirmation() == "no":
-            continue
+    while True:
+        heading_level = get_heading_level()
+        heading_style = f"Heading {heading_level}"
+        if validate_heading_selection(doc, heading_style) > 0:
+            if user_confirmation() == "yes":
+                extract_chapters(doc, heading_style, destination_path)
+                break
         else:
-            extract_chapters(doc, heading_style, destination_path)
-            break
+            if user_confirmation() == "no":
+                continue
+            else:
+                extract_chapters(doc, heading_style, destination_path)
+                break
+
+if __name__ == "__main__":
+    main()

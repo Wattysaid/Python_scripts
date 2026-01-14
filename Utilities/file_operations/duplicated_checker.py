@@ -89,22 +89,26 @@ def print_summary(duplicates):
     print(f"Total Duplicate Groups Found: {total_groups}")
     print(f"Total Duplicate Files: {total_duplicates}")
 
-# Prompt user for directory paths to scan
-user_input = input("Enter directory paths to scan, separated by commas: ")
-directories = [dir.strip() for dir in user_input.split(',')]
+def main():
+    # Prompt user for directory paths to scan
+    user_input = input("Enter directory paths to scan, separated by commas: ")
+    directories = [dir.strip() for dir in user_input.split(',')]
+    
+    duplicates, unique_id = find_duplicates(directories)
+    
+    # Prompt user for location to save the CSV file
+    csv_save_location = input("Enter the destination path to save the CSV report (Press Enter for default Downloads folder): ")
+    if not csv_save_location:
+        csv_save_location = os.path.join(os.path.expanduser("~"), "Downloads")
+    csv_file_name = os.path.join(csv_save_location, "duplicates_report.csv")
+    
+    write_to_csv(duplicates, unique_id, csv_file_name)
+    
+    print(f"\nDuplicate files report generated: {csv_file_name}")
+    print_summary(duplicates)
+    
+    # Wait for user to press Enter before closing
+    input("\nPress Enter to close the application...")
 
-duplicates, unique_id = find_duplicates(directories)
-
-# Prompt user for location to save the CSV file
-csv_save_location = input("Enter the destination path to save the CSV report (Press Enter for default Downloads folder): ")
-if not csv_save_location:
-    csv_save_location = os.path.join(os.path.expanduser("~"), "Downloads")
-csv_file_name = os.path.join(csv_save_location, "duplicates_report.csv")
-
-write_to_csv(duplicates, unique_id, csv_file_name)
-
-print(f"\nDuplicate files report generated: {csv_file_name}")
-print_summary(duplicates)
-
-# Wait for user to press Enter before closing
-input("\nPress Enter to close the application...")
+if __name__ == "__main__":
+    main()

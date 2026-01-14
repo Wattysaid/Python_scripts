@@ -124,22 +124,41 @@ def confirm_copy():
         else:
             print("Please answer with 'yes' or 'no'.")
 
-# Main script execution flow
 def main():
-    source_folder = select_source_folder()
-    suggested_copies = suggest_copy_count()
-    copy_count = get_copy_count(suggested_copies)
-    destination_folder = select_destination_folder()
+    # Main script execution flow
+    print("RAM-Dependent Simultaneous Copy Utility")
+    print("-" * 40)
+    
+    # Get source folder
+    source_folder = get_source_folder()
+    
+    # Scan files in source folder
     file_paths = scan_folders(source_folder)
-    print(f"Found {len(file_paths)} files to copy.")
-
-    if confirm_copy():
-        copy_files(file_paths, destination_folder, copy_count, source_folder)
-        print("Copying complete.")
-    else:
+    
+    if not file_paths:
+        print("No files found in the source folder.")
+        return
+    
+    print(f"\nTotal files to copy: {len(file_paths)}")
+    
+    # Get user confirmation
+    if not confirm_copy():
         print("Copy operation cancelled.")
-
-    input("Press Enter to exit...")  # This line keeps the window open until the user presses Enter.
+        return
+    
+    # Get destination folder and copy count
+    destination_folder = get_destination_folder()
+    copy_count = get_copy_count()
+    
+    # Start copying
+    print(f"\nStarting copy operation with {copy_count} simultaneous copies...")
+    start_time = time.time()
+    copy_files(file_paths, destination_folder, copy_count, source_folder)
+    end_time = time.time()
+    
+    print(f"\n✓ Copy completed successfully!")
+    print(f"Time taken: {end_time - start_time:.2f} seconds")
+    print(f"Files copied to: {destination_folder}")
 
 if __name__ == "__main__":
     main()

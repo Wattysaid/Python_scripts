@@ -39,8 +39,12 @@ def check_and_install_packages(required_packages):
     # Wait for User Input
     input("Press Enter to continue with the script...")
 
-# List of required packages
-required_packages = ["docx", "os"]  # Note: corrected package name to lowercase for consistency
+def main():
+    # List of required packages
+    required_packages = ["docx", "os"]  # Note: corrected package name to lowercase for consistency
 
-# Check and install required packages
-check_and_install_packages(required_packages)
+    # Check and install required packages
+    check_and_install_packages(required_packages)
+
+if __name__ == "__main__":
+    main()

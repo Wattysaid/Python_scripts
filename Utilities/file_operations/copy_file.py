@@ -98,29 +98,44 @@ def copy_with_progress(src, dst, chunk_size):
             pbar.update(len(buffer))
 
 def main():
-    file_path = input("Please enter the path of the file you wish to copy: ")
-    if not Path(file_path).exists():
-        print("File does not exist. Please check the path and try again.")
-        return
-
-    file_details = get_file_details(file_path)
-    print(f"File Name: {file_details['name']}, File Type: {file_details['type']}, File Size: {file_details['size_mb']:.2f} MB")
-
-    destination_folder = input("Please enter the destination folder path: ")
-    if not Path(destination_folder).is_dir():
-        print("Destination is not a directory. Please check the path and try again.")
-        return
-
-    if confirm("Do you want to proceed with the copy?"):
-        destination_path = Path(destination_folder) / file_details['name']
-        chunk_size = choose_chunk_size(file_details['size_bytes'])
-        copy_with_progress(file_path, destination_path, chunk_size)
-        print("File copied successfully!")
-        print(f"Transfer Summary:\n- Source: {file_path}\n- Destination: {destination_path}\n- File Size: {file_details['size_mb']:.2f} MB")
-    else:
-        print("File copy cancelled.")
-
-    input("Transfer complete! Press any key to exit...")
+    print("File Copy Utility")
+    print("-" * 20)
+    
+    # Get source file
+    while True:
+        src_path = input("\nEnter the path to the source file: ").strip()
+        if os.path.isfile(src_path):
+            break
+        print("Error: Source file not found. Please try again.")
+    
+    # Display file details
+    file_details = get_file_details(src_path)
+    print(f"\nFile Details:")
+    print(f"Name: {file_details['name']}")
+    print(f"Type: {file_details['type']}")
+    print(f"Size: {file_details['size_mb']:.2f} MB ({file_details['size_bytes']:,} bytes)")
+    
+    # Get destination
+    while True:
+        dst_input = input("\nEnter the destination path (file or directory): ").strip()
+        dst_path = Path(dst_input)
+        
+        if dst_path.is_dir():
+            dst_path = dst_path / file_details['name']
+        
+        if confirm(f"Copy '{src_path}' to '{dst_path}'?"):
+            break
+    
+    # Choose chunk size
+    chunk_size = choose_chunk_size(file_details['size_bytes'])
+    
+    # Perform copy
+    try:
+        print(f"\nStarting copy operation...")
+        copy_with_progress(src_path, str(dst_path), chunk_size)
+        print(f"\nFile successfully copied to: {dst_path}")
+    except Exception as e:
+        print(f"Error during copy: {e}")
 
 if __name__ == "__main__":
     main()

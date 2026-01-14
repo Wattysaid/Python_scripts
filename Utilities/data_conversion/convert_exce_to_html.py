@@ -42,13 +42,21 @@ def convert_excel_to_html(excel_file, output_directory):
     except Exception as e:
         messagebox.showerror("Error", f"An error occurred: {e}")
 
-if __name__ == "__main__":
+def main():
+    # Select the Excel file
     excel_file = select_excel_file()
-    if excel_file:  # Proceed if the user selected a file
+    
+    if excel_file:
+        # Select the output directory
         output_directory = select_output_directory()
-        if output_directory:  # Proceed if the user selected an output directory
+        
+        if output_directory:
+            # Convert Excel to HTML
             convert_excel_to_html(excel_file, output_directory)
         else:
             messagebox.showwarning("Warning", "No output directory selected. Operation cancelled.")
     else:
-        messagebox.showwarning("Warning", "No Excel file selected. Operation cancelled.")
+        messagebox.showwarning("Warning", "No file selected. Operation cancelled.")
+
+if __name__ == "__main__":
+    main()

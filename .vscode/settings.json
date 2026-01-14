@@ -1,0 +1,26 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "New-Item": true,
+        "Move-Item": true,
+        "/^python cleanup_scripts\\.py$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^python \"D:\\\\GitHub\\\\Python_scripts\\\\cleanup_scripts\\.py\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^python -c \"import os; print\\('Current dir:', os\\.getcwd\\(\\)\\); exec\\(open\\('cleanup_scripts\\.py'\\)\\.read\\(\\)\\)\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^Get-ChildItem -Path \"D:\\\\GitHub\\\\Python_scripts\" -Recurse -Filter \"\\*\\.py\" \\| ForEach-Object \\{ Write-Host \"Processing: \\$\\(\\$_\\.FullName\\)\" \\}$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^Get-ChildItem \"d:\\\\GitHub\\\\Python_scripts\\\\Utilities\" -Recurse -Filter \"\\*\\.py\" \\| ForEach-Object \\{ \"\\$\\(\\$_\\.FullName\\): \\$\\(\\(Get-Content \\$_\\.FullName \\| Measure-Object -Line\\)\\.Lines\\) lines\" \\}$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}
